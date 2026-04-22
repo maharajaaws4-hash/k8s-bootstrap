@@ -82,7 +82,7 @@ elif [ "$ROLE" == "worker" ]; then
 
     JOIN_CMD=$2
 
-    sudo $JOIN_CMD
+    eval "sudo $JOIN_CMD"
 
     echo "WORKER JOINED"
 fi
