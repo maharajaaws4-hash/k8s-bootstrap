@@ -50,3 +50,4 @@ elif [ "$ROLE" == "worker" ]; then
 
     echo "WORKER JOINED"
 fi
+
