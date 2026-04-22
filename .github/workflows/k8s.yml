@@ -1,6 +1,9 @@
 name: K8s Cluster Bootstrap
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
