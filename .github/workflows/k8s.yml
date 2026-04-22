@@ -8,30 +8,46 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      MASTER_IP: 3.108.184.29
-      WORKER_IP: 13.232.101.135
+      MASTER_IP: 3.110.30.206
+      WORKER_IP: 3.108.60.167
 
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
 
+    # ✅ FIXED: Use base64 secret
     - name: Setup SSH Key
       run: |
-        echo "${{ secrets.SSH_KEY }}" > my-key.pem
+        echo "${{ secrets.SSH_KEY_B64 }}" | base64 -d > my-key.pem
         chmod 600 my-key.pem
 
+    # ✅ DEBUG (keep this for now)
+    - name: Verify key format
+      run: |
+        head -n 2 my-key.pem
+
+    # ✅ TEST SSH
     - name: Test SSH Master
       run: |
         ssh -o StrictHostKeyChecking=no -i my-key.pem ubuntu@$MASTER_IP "echo Master Connected"
 
+    # -------------------------
+    # MASTER SETUP
+    # -------------------------
     - name: Run Master Setup
       run: |
         ssh -o StrictHostKeyChecking=no -i my-key.pem ubuntu@$MASTER_IP 'bash -s' < install.sh master
 
+    # -------------------------
+    # GET JOIN COMMAND
+    # -------------------------
     - name: Get Join Command
       run: |
-        ssh -i my-key.pem ubuntu@$MASTER_IP "cat /home/ubuntu/join.sh" > join.sh
+        ssh -o StrictHostKeyChecking=no -i my-key.pem ubuntu@$MASTER_IP "cat /home/ubuntu/join.sh" > join.sh
 
+    # -------------------------
+    # WORKER SETUP
+    # -------------------------
     - name: Run Worker Setup
       run: |
         ssh -o StrictHostKeyChecking=no -i my-key.pem ubuntu@$WORKER_IP 'bash -s' < install.sh worker "$(cat join.sh)"
