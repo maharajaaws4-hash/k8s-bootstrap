@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      MASTER_IP: 3.110.30.206
-      WORKER_IP: 3.108.60.167
+      MASTER_IP: 52.66.199.156
+      WORKER_IP: 13.233.207.111
 
     steps:
     - name: Checkout repo
