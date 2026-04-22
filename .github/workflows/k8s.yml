@@ -1,0 +1,37 @@
+name: K8s Cluster Bootstrap
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    env:
+      MASTER_IP: 3.108.184.29
+      WORKER_IP: 13.232.101.135
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Setup SSH Key
+      run: |
+        echo "${{ secrets.SSH_KEY }}" > my-key.pem
+        chmod 600 my-key.pem
+
+    - name: Test SSH Master
+      run: |
+        ssh -o StrictHostKeyChecking=no -i my-key.pem ubuntu@$MASTER_IP "echo Master Connected"
+
+    - name: Run Master Setup
+      run: |
+        ssh -o StrictHostKeyChecking=no -i my-key.pem ubuntu@$MASTER_IP 'bash -s' < install.sh master
+
+    - name: Get Join Command
+      run: |
+        ssh -i my-key.pem ubuntu@$MASTER_IP "cat /home/ubuntu/join.sh" > join.sh
+
+    - name: Run Worker Setup
+      run: |
+        ssh -o StrictHostKeyChecking=no -i my-key.pem ubuntu@$WORKER_IP 'bash -s' < install.sh worker "$(cat join.sh)"
